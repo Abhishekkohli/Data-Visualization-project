@@ -2966,12 +2966,18 @@ function showDataStatistics() {
 }
 
 function processUploadedCSV(file) {
+    console.log('processUploadedCSV called with file:', file);
+    
     const welcomeScreen = document.getElementById('welcomeScreen');
     const processingOverlay = document.getElementById('processingOverlay');
     const mainContainer = document.getElementById('mainContainer');
     
-    // Hide welcome screen and show processing overlay
-    welcomeScreen.classList.add('hidden');
+    console.log('Elements found:', { welcomeScreen, processingOverlay, mainContainer });
+    
+    // Hide welcome screen (if visible) and show processing overlay
+    if (welcomeScreen) {
+        welcomeScreen.classList.add('hidden');
+    }
     processingOverlay.classList.add('active');
     updateProgressText('Reading CSV file...');
     
@@ -3335,53 +3341,63 @@ function processFallbackMode(streamedData) {
     }
 }
 
-// Setup file upload event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.getElementById('csvFileInput');
+// Function to load CSV file directly from assets folder
+async function loadCombinedCSV() {
     const fileInfo = document.getElementById('fileInfo');
-    const uploadArea = document.getElementById('uploadArea');
-    const uploadBtn = document.querySelector('.upload-btn');
     
-    // Button click triggers file input
-    if (uploadBtn) {
-        uploadBtn.addEventListener('click', function(e) {
+    console.log('Starting to load combined.csv...');
+    
+    try {
+        fileInfo.textContent = 'Loading combined.csv dataset...';
+        console.log('Fetching assets/combined.csv...');
+        
+        // Fetch the CSV file from the assets folder
+        const response = await fetch('assets/combined.csv');
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Convert response to blob to simulate a file object
+        const blob = await response.blob();
+        const file = new File([blob], 'combined.csv', { type: 'text/csv' });
+        
+        console.log('File created:', file.name, 'Size:', file.size, 'bytes');
+        fileInfo.textContent = `Loaded: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+        
+        // Process the CSV file using the existing function
+        console.log('Calling processUploadedCSV...');
+        processUploadedCSV(file);
+        
+    } catch (error) {
+        console.error('Error loading CSV file:', error);
+        fileInfo.textContent = 'Error loading dataset. Please check if combined.csv exists in assets folder.';
+        
+        // Show error message to user
+        const processingOverlay = document.getElementById('processingOverlay');
+        if (processingOverlay) {
+            processingOverlay.classList.add('active');
+            updateProgressText('Error: Could not load combined.csv file. Please ensure you are running this from a web server (not file:// protocol).');
+        }
+    }
+}
+
+// Setup auto-load functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInfo = document.getElementById('fileInfo');
+    const loadDataBtn = document.getElementById('loadDataBtn');
+    
+    // Button click triggers data loading (for manual loading if needed)
+    if (loadDataBtn) {
+        loadDataBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            fileInput.click();
+            loadCombinedCSV();
         });
     }
     
-    // File input change event
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            fileInfo.textContent = `Selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-            processUploadedCSV(file);
-        }
-    });
-    
-    // Drag and drop functionality
-    uploadArea.addEventListener('dragover', function(e) {
-        e.preventDefault();
-        uploadArea.classList.add('drag-over');
-    });
-    
-    uploadArea.addEventListener('dragleave', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('drag-over');
-    });
-    
-    uploadArea.addEventListener('drop', function(e) {
-        e.preventDefault();
-        uploadArea.classList.remove('drag-over');
-        
-        const file = e.dataTransfer.files[0];
-        if (file && file.name.endsWith('.csv')) {
-            fileInfo.textContent = `Selected: ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
-            processUploadedCSV(file);
-        } else {
-            fileInfo.textContent = 'Please drop a valid CSV file';
-        }
-    });
+    // Auto-load the data immediately when page loads
+    loadCombinedCSV();
 });
 
 // Function to calculate altitude boundaries based on data

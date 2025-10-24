@@ -7,23 +7,22 @@
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- Welcome Screen -->
-    <div class="welcome-screen" id="welcomeScreen">
+    <!-- Welcome Screen (Hidden by default) -->
+    <div class="welcome-screen hidden" id="welcomeScreen">
         <div class="welcome-content">
             <h1>🦅 Albatross Flight Visualization</h1>
-            <p>Upload your CSV file containing flight sensor data to visualize the albatross flight path in stunning 3D, along with detailed sensor metrics and geographic mapping.</p>
+            <p>Loading albatross flight sensor data to visualize the flight path in stunning 3D, along with detailed sensor metrics and geographic mapping.</p>
             
             <div class="upload-area" id="uploadArea">
                 <div class="file-input-wrapper">
-                    <button class="upload-btn">
+                    <button class="upload-btn" id="loadDataBtn">
                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
                         </svg>
-                        Choose CSV File
+                        Load Flight Data
                     </button>
-                    <input type="file" id="csvFileInput" accept=".csv">
                 </div>
-                <div class="file-info" id="fileInfo">No file selected</div>
+                <div class="file-info" id="fileInfo">Ready to load combined.csv dataset</div>
             </div>
         </div>
     </div>
@@ -47,7 +46,7 @@
         Reset
     </button>
 
-    <div class="main-container hidden" id="mainContainer">
+    <div class="main-container" id="mainContainer">
         <!-- Data Statistics Banner -->
         <div id="dataStatsBanner" style="position: fixed; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 8px 20px; border-radius: 20px; font-size: 12px; z-index: 1000; display: none; backdrop-filter: blur(10px);">
             <span id="dataStatsText"></span>
